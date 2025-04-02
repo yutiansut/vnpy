@@ -1,30 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-#Build ctp/lts/ib api
-pushd vnpy/api/ctp
-bash build.sh
-popd
+python=$1
+pypi_index=$2
+shift 2
 
-pushd vnpy/api/lts
-bash build.sh
-popd
 
-pushd vnpy/api/xtp
-bash build.sh
-popd
+[[ -z $python ]] && python=python3
+[[ -z $pypi_index ]] && pypi_index=https://pypi.vnpy.com
 
-pushd vnpy/api/ib
-bash build.sh
-popd
+$python -m pip install --upgrade pip wheel --index $pypi_index
 
-#Install Python Modules
-pip install -r requirements.txt
+# Get and build ta-lib
+function install-ta-lib()
+{   
+    # install numpy first
+    $python -m pip install numpy==1.23.1 --index $pypi_index
 
-#Install Ta-Lib
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-conda config --set show_channel_urls yes
-conda install -c quantopian ta-lib=0.4.9
+    pushd /tmp
+    wget https://pip.vnpy.com/colletion/ta-lib-0.4.0-src.tar.gz
+    tar -xf ta-lib-0.4.0-src.tar.gz
+    cd ta-lib
+    ./configure --prefix=/usr/local
+    make -j1
+    make install
+    popd
 
-#Install vn.py
-python setup.py install
+    $python -m pip install ta-lib==0.4.24 --index $pypi_index
+}
+function ta-lib-exists()
+{
+    $prefix/ta-lib-config --libs > /dev/null
+}
+ta-lib-exists || install-ta-lib
 
+# Install local Chinese language environment
+locale-gen zh_CN.GB18030
+
+# Install VeighNa
+$python -m pip install . --index $pypi_index

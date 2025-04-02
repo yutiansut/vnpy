@@ -1,3 +1,8 @@
-# encoding: UTF-8
+from .client import RpcClient
+from .server import RpcServer
 
-from .vnrpc import RpcServer, RpcClient, RemoteException
+
+__all__ = [
+    "RpcClient",
+    "RpcServer",
+]

@@ -1,3 +1,8 @@
-# encoding: UTF-8
+from .engine import Event, EventEngine, EVENT_TIMER
 
-from .eventEngine import EventEngine, EventEngine2, Event, EVENT_TIMER
+
+__all__ = [
+    "Event",
+    "EventEngine",
+    "EVENT_TIMER",
+]
